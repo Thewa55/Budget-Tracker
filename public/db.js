@@ -12,7 +12,7 @@ request.onupgradeneeded = function(event){
 
 request.onsuccess = function(event){
   db = event.target.result;
-
+  //if we are online we run the function checkDatabase
   if(navigator.onLine){
     checkDatabase();
   };
