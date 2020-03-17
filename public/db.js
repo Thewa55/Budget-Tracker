@@ -18,3 +18,6 @@ request.onsuccess = function(event){
   };
 };
 
+request.onerror = function(event){
+  console.log("Something went wrong! " + event.target.errorCode)
+}
