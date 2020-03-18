@@ -21,3 +21,40 @@ request.onsuccess = function(event){
 request.onerror = function(event){
   console.log("Something went wrong! " + event.target.errorCode)
 }
+
+function saveRecord(record) {
+  //set the variable transaction equal to the indexDB "pending" with a readwrite
+  const transaction = db.transaction(["pending"], "readwrite");
+  //store is set to equal to the open indexDB to store something into "pending"
+  const store = transaction.objectStore("pending");
+  //adds a record to the store which is the pending indexDB
+  store.add(record);
+}
+
+function checkDatabase() {
+  const transaction = db.transaction(["pending"], "readwrite");
+  const store = transaction.objectStore("pending");
+  // getAll is set to store.getAll which pulls all entries out of the indexDB pending
+  const getAll = store.getAll();
+  
+  getAll.onsuccess = function() {
+    if (getAll.result.length > 0) {
+      fetch("/api/transaction/bulk", {
+        method: "POST",
+        body: JSON.stringify(getAll.result),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => response.json())
+      .then(() => {
+        const transaction = db.transaction(["pending"], "readwrite");
+        const store = transaction.objectStore("pending");
+  
+        // clear all items in your store
+        store.clear();
+      });
+    }
+  };
+}
